@@ -1,9 +1,10 @@
 # WMPD - WordPress+MySql+PhpMyAdmin Docker Compose over TSL
 
 WMPD is docker based server with WordPress, mysql and phpmyadmin all of that over TSL(HTTPS) and Let's encrypt Certificate! 
+
 With this project you can quickly run the following:
 
-- [WordPress and WP CLI](https://hub.docker.com/_/wordpress/)
+- [WordPress](https://hub.docker.com/_/wordpress/)
 - [phpMyAdmin](https://hub.docker.com/r/phpmyadmin/phpmyadmin/)
 - [MySQL](https://hub.docker.com/_/mysql/)
 
