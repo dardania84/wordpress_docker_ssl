@@ -1,0 +1,57 @@
+version: "3.3"
+
+services:
+#----------Traefik Service----------
+    traefik:
+        image: "traefik:v2.1"
+        container_name: "traefik"
+        command:
+            #- "--log.level=DEBUG"
+            - "--api.insecure=true"
+            - "--providers.docker=true"
+            - "--providers.docker.exposedbydefault=false"
+            - "--entrypoints.websecure.address=:443"
+            - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+            #- "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+            - "--certificatesresolvers.myresolver.acme.email=${POSTMASTER_MAIL}"
+            - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+          ports:
+            - "443:443"
+            - "8080:8080"
+          volumes:
+            - letsencrypt:"/letsencrypt"
+            - "/var/run/docker.sock:/var/run/docker.sock:ro" 
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.db.rule=Host(`${TRAEFIK_DOMAIN}`)"
+            - "traefik.http.routers.db.entrypoints=websecure"
+            - "traefik.http.routers.db.tls.certresolver=myresolver" 
+#----------Wordpress Service----------
+    wp:
+        image: "wordpress:latest"
+        container_name: "wordpress"
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.wp.rule=Host(`${WORDPRESS_DOMAIN}`)"
+            - "traefik.http.routers.wp.entrypoints=websecure"
+            - "traefik.http.routers.wp.tls.certresolver=myresolver" 
+#----------Database Service----------
+    db:
+        image: "mysql:latest"
+        container_name: "mysql"
+        labels:
+            - "traefik.enable=false"
+#----------Phpmyadmin Service----------
+    phpmyadmin:
+        image: "phpmyadmin/phpmyadmin"
+        container_name: "phpmyadmin"
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.phpmyadmin.rule=Host(`${DB_DOMAIN}`)"
+            - "traefik.http.routers.phpmyadmin.entrypoints=websecure"
+            - "traefik.http.routers.phpmyadmin.tls.certresolver=myresolver" 
+
+    
+volumes:
+    letsencrypt:
+    
