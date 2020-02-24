@@ -19,11 +19,16 @@ services:
       - "--certificatesresolvers.myresolver.acme.email=$ADMIN_MAIL"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--serversTransport.insecureSkipVerify=true"
-    labels:
+     labels:
       - "traefik.http.routers.traefik.rule=Host(`$MONITOR_DOMAIN`)"
       - "traefik.http.routers.traefik.entrypoints=web"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
-      - traefik.enable=true
+      - "traefik.http.routers.http-catchall.rule=hostregexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      # middleware redirect
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.enable=true"
 
     ports:
       - "443:443"
